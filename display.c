@@ -1,9 +1,19 @@
-#include "malloc.h"
+/******************************************************************************/
+/*____________________________________________________________________________*/
+/*_____/\/\/\/\/\___/\/\____________/\/\/\/\/\/\_/\/\__/\/\__/\/\_____________*/
+/*____/\/\____/\/\_______/\/\__/\/\____/\/\___________/\/\__/\/\__/\/\/\/\/\__*/
+/*___/\/\/\/\/\___/\/\____/\/\/\______/\/\_____/\/\__/\/\__/\/\______/\/\_____*/
+/*__/\/\_________/\/\____/\/\/\______/\/\_____/\/\__/\/\__/\/\____/\/\________*/
+/*_/\/\_________/\/\__/\/\__/\/\____/\/\_____/\/\__/\/\__/\/\__/\/\/\/\/\_____*/
+/*____________________________________________________________________________*/
+/*                                                                            */
+/*----- Date ----------------{ 2019-09-09 17:06:09 }--------------------------*/
+/*----- Author --------------{ PixTillz }-------------------------------------*/
+/*----- Last Modified by ----{ hippolyteeinfalt }-----------------------------*/
+/*----- Last Modified time --{ 2019-09-09 17:08:37 }--------------------------*/
+/******************************************************************************/
 
-void put_block_info(t_meta *block)
-{
-	ft_printf("size = %lu | tag = %d | freed = %d | used = %d | next = %p\n", block->size, block->tag, block->freed, block->used, block->next);
-}
+#include "malloc.h"
 
 static void	put_tag(int tag)
 {
@@ -37,34 +47,37 @@ static void	put_block(t_meta **ablock, int tag)
 		ft_putendl("No allocation yet.");
 }
 
-void		show_full_mem(t_meta **ablock)
-{
-	t_meta	*head;
-
-	if (!ablock || !(head = *ablock))
-		return ;
-	ft_putendl("*****************************");
-	while (head) {
-		put_block_info(head);
-		head = head->next;
-		if (head)
-			ft_putendl("---------------");
-	}
-	ft_putendl("*****************************");
-}
-
 void		show_alloc_mem()
 {
 	int		tag;
 
 	tag = 0;
-	// while (tag < 3)
-	// 	put_block(&g_meta, tag++);
+	while (tag < 3)
+		put_block(&g_meta, tag++);
 	// ---------------------------
-	show_full_mem(&g_meta);
+	// show_full_mem(&g_meta);
 	// ---------------------------
 	// put_colored_mem(&g_meta);
 }
+
+// void		show_full_mem(t_meta **ablock)
+// {
+// 	t_meta	*head;
+
+// 	if (!ablock || !(head = *ablock))
+// 		return ;
+// 	ft_putendl("\033[34m*****************************\033[0m");
+// 	while (head) {
+// 		put_block_info(head);
+// 		head = head->next;
+// 	}
+// 	ft_putendl("\033[34m*****************************\033[0m");
+// }
+
+// void put_block_info(t_meta *block)
+// {
+// 	ft_printf("tag = %d | freed = %d | used = %d | next = %p | pregen = %d | size = %lu\n", block->tag, block->freed, block->used, block->next, block->pregen, block->size);
+// }
 
 // static void put_colored_mem(t_meta **ablock)
 // {
