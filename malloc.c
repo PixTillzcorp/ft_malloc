@@ -10,7 +10,7 @@
 /*----- Date ----------------{ 2019-09-06 15:46:13 }--------------------------*/
 /*----- Author --------------{ PixTillz }-------------------------------------*/
 /*----- Last Modified by ----{ hippolyteeinfalt }-----------------------------*/
-/*----- Last Modified time --{ 2019-09-09 17:34:32 }--------------------------*/
+/*----- Last Modified time --{ 2019-09-09 17:38:38 }--------------------------*/
 /******************************************************************************/
 
 #include "malloc.h"
@@ -99,7 +99,7 @@ int		erase_freed_block(t_meta *head, int flip)
 ** My own malloc function returning a pointer to a mapped zone size long
 */
 
-void	*ft_malloc(size_t size)
+void	*malloc(size_t size)
 {
 	t_meta	*block;
 

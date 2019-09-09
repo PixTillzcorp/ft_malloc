@@ -10,7 +10,7 @@
 /*----- Date ----------------{ 2019-09-09 15:47:26 }--------------------------*/
 /*----- Author --------------{ PixTillz }-------------------------------------*/
 /*----- Last Modified by ----{ hippolyteeinfalt }-----------------------------*/
-/*----- Last Modified time --{ 2019-09-09 17:35:12 }--------------------------*/
+/*----- Last Modified time --{ 2019-09-09 17:40:31 }--------------------------*/
 /******************************************************************************/
 
 #include "malloc.h"
@@ -24,7 +24,7 @@ static t_meta	*cpy_block(t_meta *block)
 {
 	void		*cpy_block;
 
-	if (!(cpy_block = ft_malloc(block->size)))
+	if (!(cpy_block = malloc(block->size)))
 		return (NULL);
 	ft_memcpy(cpy_block, (void *)(block + 1), block->size);
 	return (((t_meta *)cpy_block) - 1);
@@ -78,7 +78,7 @@ extern void	*split_block(t_meta *head, t_meta *block, size_t size, int flip)
 	if (flip)
 	{
 		ft_memcpy(block + 1, tmp_block + 1, size);
-		ft_free(tmp_block + 1);
+		free(tmp_block + 1);
 	}
 	block->used = 1;
 	return (block);

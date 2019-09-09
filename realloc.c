@@ -10,7 +10,7 @@
 /*----- Date ----------------{ 2019-09-09 15:49:01 }--------------------------*/
 /*----- Author --------------{ PixTillz }-------------------------------------*/
 /*----- Last Modified by ----{ hippolyteeinfalt }-----------------------------*/
-/*----- Last Modified time --{ 2019-09-09 17:04:56 }--------------------------*/
+/*----- Last Modified time --{ 2019-09-09 17:41:28 }--------------------------*/
 /******************************************************************************/
 
 #include "malloc.h"
@@ -25,7 +25,7 @@ int		ft_munmap(void *ptr, size_t size)
 	return (0);
 }
 
-void		*ft_realloc(void *ptr, size_t size)
+void		*realloc(void *ptr, size_t size)
 {
 	t_meta	*block;
 	void	*new_ptr;
@@ -43,9 +43,9 @@ void		*ft_realloc(void *ptr, size_t size)
 		}
 		return (ptr);
 	}
-	if (!(new_ptr = ft_malloc(size)))
+	if (!(new_ptr = malloc(size)))
 		return (NULL);
 	ft_memcpy(new_ptr, ptr, block->size);
-	ft_free(ptr);
+	free(ptr);
 	return (new_ptr);
 }
