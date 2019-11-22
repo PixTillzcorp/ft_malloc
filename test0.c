@@ -7,36 +7,22 @@
 /*_/\/\_________/\/\__/\/\__/\/\____/\/\_____/\/\__/\/\__/\/\__/\/\/\/\/\_____*/
 /*____________________________________________________________________________*/
 /*                                                                            */
-/*----- Date ----------------{ 2019-09-30 15:39:38 }--------------------------*/
+/*----- Date ----------------{ 2019-09-09 18:57:08 }--------------------------*/
 /*----- Author --------------{ PixTillz }-------------------------------------*/
 /*----- Last Modified by ----{ hippolyteeinfalt }-----------------------------*/
-/*----- Last Modified time --{ 2019-10-10 12:23:44 }--------------------------*/
+/*----- Last Modified time --{ 2019-09-09 19:23:49 }--------------------------*/
 /******************************************************************************/
 
-#include "../includes/malloc.h"
+#include "./includes/malloc.h"
 
-void			free(void *ptr)
+int main()
 {
-	t_block		*ref;
+	int i;
+	char *addr;
 
-    pthread_mutex_lock(&g_mutex);
-	if (!g_page || !ptr)
-		return ;
-    pthread_mutex_unlock(&g_mutex);
-	if (!(ref = find_block_addr(&g_page, ptr)))
-	{
-		ft_putendl("Trying to free a non-allocated space.");
-		return ;
+	i = 0;
+	while (i < 1024) {
+		i++;
 	}
-    pthread_mutex_lock(&g_mutex);
-	if (ref->freed)
-	{
-		ft_putendl("Double free.");
-        pthread_mutex_unlock(&g_mutex);
-		return ;
-	}
-	else
-		ref->freed = 1;
-	em_free_block(g_page, g_page->block, NULL, 0);
-    pthread_mutex_unlock(&g_mutex);
+	return (0);
 }

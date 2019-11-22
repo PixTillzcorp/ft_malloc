@@ -33,11 +33,13 @@ OBJDIR = objfiles
 
 CC = gcc
 
-SRCC =	free.c malloc.c realloc.c split_block.c cat_block.c display.c		\
-		get_functions.c
+SRCC =	free.c malloc.c realloc.c display.c	alloc.c find.c get.c erase_merge.c\
+		display_ex.c calloc.c dump_hexa.c
 
-SRCO =	free.o malloc.o realloc.o split_block.o cat_block.o display.o		\
-		get_functions.o
+# SRCC =	free.c malloc.c realloc.c split_block.c cat_block.c display.c		\
+# 		get_functions.c page.c
+
+SRCO =	$(addprefix $(OBJDIR)/,	$(SRCC:.c=.o))
 
 LIB = libft.a
 
@@ -61,7 +63,7 @@ re_done:
 
 #Lib rules~~~~~~~~~~~~~~~~
 
-$(LIB):
+lib:
 	@ make -C $(LIB_PATH)
 
 lib_re:
@@ -72,16 +74,17 @@ $(OBJDIR)/%.o: %.c
 	@ $(CC) $(CFLAGS) -c $<
 	@ mv ./$(notdir $@) ./$(OBJDIR)/
 
-$(NAME): $(LIB) $(OBJDIR)/$(SRCO)
+$(NAME): $(LIB_PATH)/$(LIB) $(SRCO)
 	@ echo "$(PINK)$(FONT_NOIR).o successfully created\t\t\t\t\t\t[$(GREEN)\xe2\x9c\x94$(PINK)]$(NORMAL)"
-	@ $(CC) $(CFLAGS) -shared -o $(NAME) $^ $(LIB_SRC)
+	@ $(CC) $(CFLAGS) -shared -o $(NAME) $^
 	@ rm -f libft_malloc.so
 	@ ln -s $(NAME) libft_malloc.so
 	@ echo "$(PINK)$(FONT_NOIR)Compilation of $(NAME)\t\t\t[$(GREEN)\xe2\x9c\x94$(PINK)]$(NORMAL)"
 
 clean: cleared
 	@ make -C $(LIB_PATH) clean
-	@ rm -f $(OBJDIR)/$(SRCO)
+	@ @ rm -f libft_malloc.so
+	@ rm -f $(SRCO)
 
 fclean: full_clear clean
 	@ make -C $(LIB_PATH) fclean

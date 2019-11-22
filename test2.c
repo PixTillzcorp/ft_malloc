@@ -7,36 +7,30 @@
 /*_/\/\_________/\/\__/\/\__/\/\____/\/\_____/\/\__/\/\__/\/\__/\/\/\/\/\_____*/
 /*____________________________________________________________________________*/
 /*                                                                            */
-/*----- Date ----------------{ 2019-09-30 15:39:38 }--------------------------*/
+/*----- Date ----------------{ 2019-09-09 19:10:10 }--------------------------*/
 /*----- Author --------------{ PixTillz }-------------------------------------*/
 /*----- Last Modified by ----{ hippolyteeinfalt }-----------------------------*/
-/*----- Last Modified time --{ 2019-10-10 12:23:44 }--------------------------*/
+/*----- Last Modified time --{ 2019-09-09 19:23:43 }--------------------------*/
 /******************************************************************************/
 
-#include "../includes/malloc.h"
+#include "./includes/malloc.h"
 
-void			free(void *ptr)
+#define VALUE 1024
+
+int main()
 {
-	t_block		*ref;
+	int i;
+    char *addr;
 
-    pthread_mutex_lock(&g_mutex);
-	if (!g_page || !ptr)
-		return ;
-    pthread_mutex_unlock(&g_mutex);
-	if (!(ref = find_block_addr(&g_page, ptr)))
-	{
-		ft_putendl("Trying to free a non-allocated space.");
-		return ;
+	i = 0;
+	while (i < VALUE) {
+		addr = (char *)mmap(NULL, VALUE, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0);
+		addr[0] = 42;
+		bzero(addr, VALUE);
+        if (munmap((char *)addr, VALUE) < 0)
+            ft_putendl("ERROR UNMAP");
+		i++;
 	}
-    pthread_mutex_lock(&g_mutex);
-	if (ref->freed)
-	{
-		ft_putendl("Double free.");
-        pthread_mutex_unlock(&g_mutex);
-		return ;
-	}
-	else
-		ref->freed = 1;
-	em_free_block(g_page, g_page->block, NULL, 0);
-    pthread_mutex_unlock(&g_mutex);
+//	show_alloc_mem();
+	return (0);
 }

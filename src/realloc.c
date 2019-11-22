@@ -7,45 +7,59 @@
 /*_/\/\_________/\/\__/\/\__/\/\____/\/\_____/\/\__/\/\__/\/\__/\/\/\/\/\_____*/
 /*____________________________________________________________________________*/
 /*                                                                            */
-/*----- Date ----------------{ 2019-09-09 15:49:01 }--------------------------*/
+/*----- Date ----------------{ 2019-10-01 20:05:46 }--------------------------*/
 /*----- Author --------------{ PixTillz }-------------------------------------*/
 /*----- Last Modified by ----{ hippolyteeinfalt }-----------------------------*/
-/*----- Last Modified time --{ 2019-09-09 18:05:05 }--------------------------*/
+/*----- Last Modified time --{ 2019-10-03 15:58:35 }--------------------------*/
 /******************************************************************************/
 
 #include "../includes/malloc.h"
 
-int		ft_munmap(void *ptr, size_t size)
+void		split_block_ts(t_block *block, size_t size)
 {
-	if (munmap(ptr, size) < 0) {
-		ft_putendl("Error munmap().");
-		ft_printf("addr err = %p\n", ptr);
-		return (-1);
+	t_block	*new;
+	void	*addr;
+
+	if (!block)
+		return ;
+	addr = (void *)(((uintptr_t)block->root) + size);
+	ft_bzero(addr, block->size - size);
+	if (block->next) {
+		if (!(new = get_block(addr, block->size - size)))
+			return ;
+		new->freed = 1;
+		new->next = block->next;
+		block->next = new;
 	}
-	return (0);
+	block->size = size;
 }
 
 void		*realloc(void *ptr, size_t size)
 {
-	t_meta	*block;
+	t_block	*ref;
 	void	*new_ptr;
 
 	if (!ptr)
 		return (malloc(size));
-	if (!check_addr(&g_meta, (block = get_addr(ptr)))) {
+	if (!(ref = find_block_addr(&g_page, ptr)))
+	{
 		ft_putendl("Trying to realloc a non-allocated space.");
 		return (NULL);
 	}
-	if (block->size >= size) {
-		if (block->size - size > META_SIZE) {
-			block = split_block(get_split_head(&g_meta, block), block, size, 1);
-			return (block + 1);
-		}
+    pthread_mutex_lock(&g_mutex);
+	if (ref->size >= size && ref->size - size > BMETA_SIZE)
+	{
+		if (is_ts(ref->size))
+			split_block_ts(ref, size);
+        pthread_mutex_unlock(&g_mutex);
 		return (ptr);
 	}
+    pthread_mutex_unlock(&g_mutex);
 	if (!(new_ptr = malloc(size)))
 		return (NULL);
-	ft_memcpy(new_ptr, ptr, block->size);
+    pthread_mutex_lock(&g_mutex);
+	ft_memcpy(new_ptr, ptr, ref->size);
 	free(ptr);
+    pthread_mutex_unlock(&g_mutex);
 	return (new_ptr);
 }

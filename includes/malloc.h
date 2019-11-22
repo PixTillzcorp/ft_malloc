@@ -1,85 +1,118 @@
 #ifndef MALLOC_H
 # define MALLOC_H
 
-# define TINY 128
-# define SMALL 2048
-# define PREGEN_NBR 4
-# define DISPLAY_NBR 64
-# define SIZE_TINY 0
-# define SIZE_SMALL 1
-# define SIZE_LARGE 2
-# define META_SIZE sizeof(t_meta)
+# define TINY 1
+# define SMALL 2
+# define LARGE 0
+# define PREGEN 100
+# define DISPLAY 64
+# define SIZE_TINY getpagesize() / 32
+# define SIZE_SMALL getpagesize() / 2
+# define BMETA_SIZE (sizeof(t_block) + ALIGNEMENT)
+# define PMETA_SIZE sizeof(t_page)
+# define ALIGNEMENT 7
 
 #include "../libft/includes/libft.h"
 #include <sys/resource.h>
 #include <pthread.h>
-#include <stdlib.h>
 #include <stdio.h>
-#include <unistd.h>
 #include <sys/mman.h>
 
-typedef struct		s_meta
+typedef struct		    s_block
 {
-	struct s_meta	*next;
-	size_t			size;
-	char			freed;
-	char			used;
-	char			tag;
-	char			pregen;
-}					t_meta;
+	struct s_block	    *next;
+	void			    *root;
+	size_t			    size;
+	char			    freed;
+}					    t_block;
 
-t_meta				*g_meta;
-
-/*
-** malloc.c
-*/
-
-int			erase_freed_block(t_meta *head, int flip);
-void		*ft_malloc(size_t size);
-
-/*
-** free.c
-*/
-
-t_meta		*get_addr(void *ptr);
-int			check_addr(t_meta **ablock, t_meta *block);
-void		ft_free(void *ptr);
+typedef struct		    s_page
+{
+	struct s_page	    *next;
+	struct s_page	    *last;
+	t_block			    *block;
+	size_t			    size;
+	size_t			    remain;
+	char			    type;
+}					    t_page;
 
 /*
-** realloc.c
+**	alloc.c
 */
 
-int			ft_munmap(void *ptr, size_t size);
-void		*ft_realloc(void *ptr, size_t size);
+void				    *alloc_large(size_t size);
+void				    *alloc_ts(t_page **afpage, size_t size, int tag);
 
 /*
-** cat_block.c
+**	display.c
 */
 
-void		cat_block(t_meta *last_block, t_meta *addr, t_meta *next_block);
-void		cat_freed_block(t_meta *head, t_meta *spot);
+void				    show_alloc_mem();
+void			        put_hexa_addr(size_t nbr, int maj);
+void		            put_size(size_t nbr);
 
 /*
-** split_block.c
+**	display_ex.c
 */
 
-void		*split_block(t_meta *head, t_meta *block, size_t size, int flip);
+void				    show_alloc_mem_ex();
+
 
 /*
-** get_functions.c
+**	erase_merge.c
 */
 
-size_t		get_block_size(t_meta *block);
-int			get_tag(size_t size);
-t_meta		*get_space(t_meta *last_block, size_t size, void *addr);
-t_meta		*get_split_head(t_meta **ablock, t_meta *focus);
-t_meta		*get_head(t_meta **ablock, t_meta *block, int flip);
+void				    em_free_block(t_page *page, t_block *head, t_block *it,
+					    int flip);
 
 /*
-** display.c
+**	find.c
 */
 
-void		show_alloc_mem();
-void		put_block_info(t_meta *block);
+t_block				    *find_block_addr(t_page **afpage, void *ptr);
+t_block				    *find_free_block(t_page *page, t_block *head,
+                        size_t size);
+
+/*
+**	free.c
+*/
+
+void				    free(void *ptr);
+
+/*
+**	get.c
+*/
+
+t_page				    *get_page(size_t size, char type, size_t nbr);
+t_block				    *get_block(void *addr, size_t size);
+
+/*
+**	malloc.c
+*/
+
+int					    is_ts(size_t size);
+void				    *malloc(size_t size);
+
+/*
+**	realloc.c
+*/
+
+void				    split_block_ts(t_block *block, size_t size);
+void				    *realloc(void *ptr, size_t size);
+
+/*
+**	calloc.c
+*/
+
+void                    *calloc(size_t count, size_t size);
+
+/*
+**	dump_hexa.c
+*/
+
+void                    dump_hexa(void *ptr);
+
+t_page				    *g_page;
+extern pthread_mutex_t	g_mutex;
 
 #endif

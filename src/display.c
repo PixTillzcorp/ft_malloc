@@ -7,137 +7,107 @@
 /*_/\/\_________/\/\__/\/\__/\/\____/\/\_____/\/\__/\/\__/\/\__/\/\/\/\/\_____*/
 /*____________________________________________________________________________*/
 /*                                                                            */
-/*----- Date ----------------{ 2019-09-09 17:06:09 }--------------------------*/
+/*----- Date ----------------{ 2019-10-03 12:52:08 }--------------------------*/
 /*----- Author --------------{ PixTillz }-------------------------------------*/
 /*----- Last Modified by ----{ hippolyteeinfalt }-----------------------------*/
-/*----- Last Modified time --{ 2019-09-09 18:04:44 }--------------------------*/
+/*----- Last Modified time --{ 2019-10-10 15:55:16 }--------------------------*/
 /******************************************************************************/
 
 #include "../includes/malloc.h"
 
-static void	put_tag(int tag)
+void		put_size(size_t nbr)
 {
-	if (tag == SIZE_TINY)
-		ft_putendl("TINY");
-	if (tag == SIZE_SMALL)
-		ft_putendl("SMALL");
-	if (tag == SIZE_LARGE)
-		ft_putendl("LARGE");
+	if (!nbr)
+		return ;
+	put_size(nbr / 10);
+	ft_putchar((nbr % 10) + 48);
 }
 
-static void	put_block(t_meta **ablock, int tag)
+void		put_hexa_addr(size_t nbr, int maj)
 {
-	t_meta	*head;
-	int		flip;
+	char		disp;
 
-	flip = 0;
-	if (!ablock || !(head = *ablock)) {
-		ft_putendl("No allocation yet.");
+	if (!nbr) {
+		ft_putstr("0x");
 		return ;
 	}
-	put_tag(tag);
-	while (head) {
-		if (head->tag == tag && head->used) {
-			flip = 1;
-			ft_printf("%p - %p : %lu octet\n", (void *)head + META_SIZE, (void *)(head + META_SIZE + head->size), head->size);
-		}
+	put_hexa_addr(nbr / 16, maj);
+	if ((disp = nbr % 16) >= 10)
+		ft_putchar((disp % 10) + (maj ? 65 : 97));
+	else
+		ft_putchar(disp + 48);
+}
+
+static size_t	put_alloc(t_page *page, t_block *block, size_t octet)
+{
+	if (!block || block->freed) {
+		if (!page->next)
+			return (octet);
+		return (put_alloc(page->next, page->next->block, octet));
+	}
+	if (page->block == block)
+	{
+		if (!page->type)
+			ft_putstr("LARGE : ");
+		else
+			ft_putstr((page->type == TINY ? "TINY : " : "SMALL : "));
+		put_hexa_addr((size_t)(page), 1);
+		ft_putstr(" - ");
+		put_hexa_addr((size_t)(page) + page->size, 1);
+		ft_putstr(" -> remain : ");
+		put_size(page->remain);
+		ft_putchar('\n');
+	}
+	put_hexa_addr((size_t)(block->root), 1);
+	ft_putstr(" - ");
+	put_hexa_addr((size_t)(block->root) + block->size, 1);
+	ft_putstr(" : ");
+	put_size(block->size);
+	ft_putstr(" octets\n");
+	return (put_alloc(page, block->next, octet + block->size));
+}
+
+static void	list_page(t_page **afpage, int flip)
+{
+	t_page	*head;
+	size_t	count;
+
+	if (!afpage || !(head = *afpage)) {
+		ft_putchar('0');
+		ft_putchar('\n');
+		return ;
+	}
+	count = 0;
+	while (head)
+	{
+		if (flip)
+			count += head->size / getpagesize();
+		else
+			count++;
 		head = head->next;
 	}
-	if (!flip)
-		ft_putendl("No allocation yet.");
+	put_size(count);
+	ft_putchar('\n');
 }
 
 void		show_alloc_mem()
 {
-	int		tag;
+	size_t	total;
 
-	tag = 0;
-	while (tag < 3)
-		put_block(&g_meta, tag++);
-	// ---------------------------
-	// show_full_mem(&g_meta);
-	// ---------------------------
-	// put_colored_mem(&g_meta);
+    pthread_mutex_lock(&g_mutex);
+	if (g_page)
+		total = put_alloc(g_page, g_page->block, 0);
+	else
+		total = 0;
+	ft_putstr("Total : ");
+	if (total)
+		put_size(total);
+	else
+		ft_putchar('0');
+	ft_putchar('\n');
+	//----------------------------
+	ft_putstr("Pages : ");
+	list_page(&g_page, 1);
+	//----------------------------
+    pthread_mutex_unlock(&g_mutex);
 }
-
-// void		show_full_mem(t_meta **ablock)
-// {
-// 	t_meta	*head;
-
-// 	if (!ablock || !(head = *ablock))
-// 		return ;
-// 	ft_putendl("\033[34m*****************************\033[0m");
-// 	while (head) {
-// 		put_block_info(head);
-// 		head = head->next;
-// 	}
-// 	ft_putendl("\033[34m*****************************\033[0m");
-// }
-
-// void put_block_info(t_meta *block)
-// {
-// 	ft_printf("tag = %d | freed = %d | used = %d | next = %p | pregen = %d | size = %lu\n", block->tag, block->freed, block->used, block->next, block->pregen, block->size);
-// }
-
-// static void put_colored_mem(t_meta **ablock)
-// {
-// 	t_meta	*head;
-
-// 	if (!ablock || !(head = *ablock))
-// 		return ;
-// 	while (head)
-// 	{
-// 		ft_putstr("\033[43m");
-// 		ft_putxchar(' ', (META_SIZE / DISPLAY_NBR) + 1); // maybe 2 times larger
-// 		ft_putstr((head->used ? "\033[42m" : "\033[49m"));
-// 		ft_putstr((head->freed ? "\033[44m" : ""));
-// 		ft_putxchar(' ', (head->size > SMALL ? DISPLAY_NBR : head->size / DISPLAY_NBR + 1));
-// 		if (head->tag < 2)
-// 			ft_putxchar(' ', ((!head->tag ? TINY : SMALL) - head->size) / DISPLAY_NBR);
-// 		ft_putstr("\033[0m");
-// 		ft_putchar((head->next ? '|' : '\n'));
-// 		head = head->next;
-// 	}
-// }
-
-// static void	ft_show_blocks(t_block **leader)
-// {
-// 	t_block	*head;
-
-// 	if (!leader || !(head = *leader))
-// 		return ;
-// 	while (head)
-// 	{
-// 		if (!(head->used))
-// 		{
-// 			printf("EMPTY\n");
-// 			head = head->next;
-// 		}
-// 		printf("%p - %p\n", head->data, (void *)((head->data) + head->len));
-// 	}
-// }
-
-// static void	ft_show_pages(t_page **page, int flip)
-// {
-// 	t_page	*head;
-
-// 	if (!page || !(head = *page))
-// 		return ;
-// 	if (flip == TINY)
-// 		printf("- TINY -\n");
-// 	else
-// 		printf("- SMALL -\n");
-// 	while (head)
-// 	{
-// 		ft_show_blocks(&(head->leader));
-// 		head = head->next;
-// 	}
-// }
-
-// void		show_alloc_mem()
-// {
-// 	ft_show_pages(&(g_malloc.tiny), TINY);
-// 	// ft_show_pages(&(g_malloc.small), SMALL);
-// 	// printf("- LARGE -\n");
-// 	// ft_show_blocks(&(g_malloc.large));
-// }

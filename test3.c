@@ -7,36 +7,35 @@
 /*_/\/\_________/\/\__/\/\__/\/\____/\/\_____/\/\__/\/\__/\/\__/\/\/\/\/\_____*/
 /*____________________________________________________________________________*/
 /*                                                                            */
-/*----- Date ----------------{ 2019-09-30 15:39:38 }--------------------------*/
+/*----- Date ----------------{ 2019-09-09 19:12:13 }--------------------------*/
 /*----- Author --------------{ PixTillz }-------------------------------------*/
 /*----- Last Modified by ----{ hippolyteeinfalt }-----------------------------*/
-/*----- Last Modified time --{ 2019-10-10 12:23:44 }--------------------------*/
+/*----- Last Modified time --{ 2019-09-10 13:20:03 }--------------------------*/
 /******************************************************************************/
 
-#include "../includes/malloc.h"
+#include "./includes/malloc.h"
+#include <string.h>
 
-void			free(void *ptr)
+# define M (1024 * 1024)
+
+void print(char *s){
+	write(1, s, strlen(s));
+}
+
+int main()
 {
-	t_block		*ref;
+	char *addr1;
+	char *addr2; //++
+	char *addr3;
 
-    pthread_mutex_lock(&g_mutex);
-	if (!g_page || !ptr)
-		return ;
-    pthread_mutex_unlock(&g_mutex);
-	if (!(ref = find_block_addr(&g_page, ptr)))
-	{
-		ft_putendl("Trying to free a non-allocated space.");
-		return ;
-	}
-    pthread_mutex_lock(&g_mutex);
-	if (ref->freed)
-	{
-		ft_putendl("Double free.");
-        pthread_mutex_unlock(&g_mutex);
-		return ;
-	}
-	else
-		ref->freed = 1;
-	em_free_block(g_page, g_page->block, NULL, 0);
-    pthread_mutex_unlock(&g_mutex);
+	addr1 = (char *)malloc(16 * M);
+	strcpy(addr1, "Bonjours\n");
+	print(addr1);
+    addr2 = (char *)malloc(16 * M); //++
+    show_alloc_mem_ex();
+	addr3 = (char *)realloc(addr1, 128 * M);
+	addr3[127*M] = 42;
+	print(addr3);
+	show_alloc_mem_ex();
+	return (0);
 }
