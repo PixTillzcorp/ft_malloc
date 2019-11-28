@@ -24,11 +24,10 @@ int main()
 
 	i = 0;
 	while (i < VALUE) {
-		addr = (char *)mmap(NULL, VALUE, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, -1, 0);
+		addr = (char *)malloc(VALUE);
 		addr[0] = 42;
 		bzero(addr, VALUE);
-        if (munmap((char *)addr, VALUE) < 0)
-            ft_putendl("ERROR UNMAP");
+        free(addr);
 		i++;
 	}
 //	show_alloc_mem();

@@ -32,10 +32,10 @@ int main()
 	strcpy(addr1, "Bonjours\n");
 	print(addr1);
     addr2 = (char *)malloc(16 * M); //++
-    show_alloc_mem_ex();
+//    show_alloc_mem_ex();
 	addr3 = (char *)realloc(addr1, 128 * M);
 	addr3[127*M] = 42;
 	print(addr3);
-	show_alloc_mem_ex();
+//	show_alloc_mem_ex();
 	return (0);
 }
