@@ -61,19 +61,18 @@ void dump_hexa(void *ptr)
 {
     t_block *meta;
 
-    if (!(meta = find_block_addr(&g_page, ptr)))
-    {
-        ft_putendl("Trying to dump a non-allocated space.");
-        return ;
-    }
     pthread_mutex_lock(&g_mutex);
-    ft_putxchar('-', ADDR_LEN + (NBR_COLUMN * 3));
-    ft_putchar('\n');
-    if (meta->freed)
-        extract_hexa(meta->root, meta->size, "\033[38;5;124m");
-    else
-        extract_hexa(meta->root, meta->size, "\033[38;5;242m");
-    ft_putxchar('-', ADDR_LEN + (NBR_COLUMN * 3));
-    ft_putchar('\n');
+    if (!(meta = find_block_addr(&g_page, ptr)))
+        ft_putendl("Trying to dump a non-allocated space.");
+    else {
+        ft_putxchar('-', ADDR_LEN + (NBR_COLUMN * 3));
+        ft_putchar('\n');
+        if (meta->freed)
+            extract_hexa(meta->root, meta->size, "\033[38;5;124m");
+        else
+            extract_hexa(meta->root, meta->size, "\033[38;5;242m");
+        ft_putxchar('-', ADDR_LEN + (NBR_COLUMN * 3));
+        ft_putchar('\n');
+    }
     pthread_mutex_unlock(&g_mutex);
 }

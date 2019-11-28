@@ -10,7 +10,7 @@
 # define SIZE_SMALL getpagesize() / 2
 # define BMETA_SIZE (sizeof(t_block) + ALIGNEMENT)
 # define PMETA_SIZE sizeof(t_page)
-# define ALIGNEMENT 7
+# define ALIGNEMENT 15
 
 #include "../libft/includes/libft.h"
 #include <sys/resource.h>
@@ -78,6 +78,7 @@ t_block				    *find_free_block(t_page *page, t_block *head,
 */
 
 void				    free(void *ptr);
+void		        	free_core(void *ptr);
 
 /*
 **	get.c
@@ -92,6 +93,7 @@ t_block				    *get_block(void *addr, size_t size);
 
 int					    is_ts(size_t size);
 void				    *malloc(size_t size);
+void		            *malloc_core(size_t size);
 
 /*
 **	realloc.c

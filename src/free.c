@@ -15,28 +15,30 @@
 
 #include "../includes/malloc.h"
 
-void			free(void *ptr)
+void			free_core(void *ptr)
 {
 	t_block		*ref;
 
+	if (g_page && ptr) {
+        if (!(ref = find_block_addr(&g_page, ptr))) {
+            ft_putendl("Trying to free a non-allocated space.");
+            pthread_mutex_unlock(&g_mutex);
+            return;
+        }
+        if (ref->freed) {
+            ft_putendl("Double free.");
+            pthread_mutex_unlock(&g_mutex);
+            return;
+        } else
+            ref->freed = 1;
+        em_free_block(g_page, g_page->block, NULL, 0);
+    }
+}
+
+
+void			free(void *ptr)
+{
     pthread_mutex_lock(&g_mutex);
-	if (!g_page || !ptr)
-		return ;
-    pthread_mutex_unlock(&g_mutex);
-	if (!(ref = find_block_addr(&g_page, ptr)))
-	{
-		ft_putendl("Trying to free a non-allocated space.");
-		return ;
-	}
-    pthread_mutex_lock(&g_mutex);
-	if (ref->freed)
-	{
-		ft_putendl("Double free.");
-        pthread_mutex_unlock(&g_mutex);
-		return ;
-	}
-	else
-		ref->freed = 1;
-	em_free_block(g_page, g_page->block, NULL, 0);
+    free_core(ptr);
     pthread_mutex_unlock(&g_mutex);
 }

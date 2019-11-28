@@ -45,7 +45,7 @@ int			        is_ts(size_t size)
 		return (SMALL);
 }
 
-void		        *malloc(size_t size)
+void		        *malloc_core(size_t size)
 {
     void            *ret;
     struct rlimit   data;
@@ -53,7 +53,6 @@ void		        *malloc(size_t size)
 	if (size <= 0 || getrlimit(RLIMIT_DATA, &data) < 0)
 		return (NULL);
 	ret = NULL;
-    pthread_mutex_lock(&g_mutex);
     if (check_rlimit(g_page, data.rlim_cur, size + BMETA_SIZE))
     {
         if (is_ts(size))
@@ -61,6 +60,15 @@ void		        *malloc(size_t size)
         else
             ret = alloc_large(size);
     }
-    pthread_mutex_unlock(&g_mutex);
 	return (ret);
+}
+
+void		        *malloc(size_t size)
+{
+    void            *ret;
+
+    pthread_mutex_lock(&g_mutex);
+    ret = malloc_core(size);
+    pthread_mutex_unlock(&g_mutex);
+    return (ret);
 }

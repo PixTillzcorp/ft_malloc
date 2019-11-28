@@ -35,23 +35,15 @@ t_block			*find_block_addr(t_page **afpage, void *ptr)
 	t_block		*ret;
 	t_page		*head;
 
-    pthread_mutex_lock(&g_mutex);
 	if (!afpage || !(head = *afpage))
-	{
-        pthread_mutex_unlock(&g_mutex);
         return (NULL);
-    }
 	while (head)
 	{
 		if ((ret = find_in_page(&(head->block), ptr)))
-		{
-            pthread_mutex_unlock(&g_mutex);
             return (ret);
-        }
 		else
 			head = head->next;
 	}
-    pthread_mutex_unlock(&g_mutex);
 	return (NULL);
 }
 

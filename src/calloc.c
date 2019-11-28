@@ -15,7 +15,7 @@
 
 #include "../includes/malloc.h"
 
-void        *calloc(size_t count, size_t size)
+static void *calloc_core(size_t count, size_t size)
 {
     void    *ptr;
     size_t  len;
@@ -23,12 +23,20 @@ void        *calloc(size_t count, size_t size)
     if (!count || !size)
         return (NULL);
     len = count * size;
-    if (!(ptr = malloc(len))) {
+    if (!(ptr = malloc_core(len))) {
         ft_putendl("Malloc call in calloc failed.");
         return (NULL);
     }
-    pthread_mutex_lock(&g_mutex);
     ft_bzero(ptr, len);
-    pthread_mutex_unlock(&g_mutex);
     return (ptr);
+}
+
+void        *calloc(size_t count, size_t size)
+{
+    void    *ret;
+
+    pthread_mutex_lock(&g_mutex);
+    ret = calloc_core(count, size);
+    pthread_mutex_unlock(&g_mutex);
+    return (ret);
 }

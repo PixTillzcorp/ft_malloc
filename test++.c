@@ -50,9 +50,6 @@ int main() {
         else if (!strcmp(cmd, "add")) {
             ft_putstr("Number:");
             scanf("%s", cmd);
-            ft_putstr("allocation of ");
-            put_size(size);
-            ft_putendl(" octet(s)");
             if (index)
                 index++;
             while (i < atoi(cmd)) {

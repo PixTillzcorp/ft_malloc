@@ -34,32 +34,37 @@ void		split_block_ts(t_block *block, size_t size)
 	block->size = size;
 }
 
-void		*realloc(void *ptr, size_t size)
+static void	*realloc_core(void *ptr, size_t size)
 {
 	t_block	*ref;
 	void	*new_ptr;
 
 	if (!ptr)
-		return (malloc(size));
+		return (malloc_core(size));
 	if (!(ref = find_block_addr(&g_page, ptr)))
 	{
 		ft_putendl("Trying to realloc a non-allocated space.");
 		return (NULL);
 	}
-    pthread_mutex_lock(&g_mutex);
 	if (ref->size >= size && ref->size - size > BMETA_SIZE)
 	{
 		if (is_ts(ref->size))
 			split_block_ts(ref, size);
-        pthread_mutex_unlock(&g_mutex);
 		return (ptr);
 	}
-    pthread_mutex_unlock(&g_mutex);
 	if (!(new_ptr = malloc(size)))
 		return (NULL);
-    pthread_mutex_lock(&g_mutex);
 	ft_memcpy(new_ptr, ptr, ref->size);
-	free(ptr);
-    pthread_mutex_unlock(&g_mutex);
+	free_core(ptr);
 	return (new_ptr);
+}
+
+void		*realloc(void *ptr, size_t size)
+{
+    void    *ret;
+
+    pthread_mutex_lock(&g_mutex);
+    ret = realloc_core(ptr, size);
+    pthread_mutex_unlock(&g_mutex);
+    return (ret);
 }
