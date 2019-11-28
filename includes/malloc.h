@@ -69,6 +69,8 @@ void				    em_free_block(t_page *page, t_block *head, t_block *it,
 **	find.c
 */
 
+t_page                  *find_page(t_page *head, t_block *block);
+t_block	                *find_in_page(t_block **afblock, void *ptr);
 t_block				    *find_block_addr(t_page **afpage, void *ptr);
 t_block				    *find_free_block(t_page *page, t_block *head,
                         size_t size);

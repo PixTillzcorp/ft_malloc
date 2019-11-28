@@ -15,7 +15,19 @@
 
 #include "../includes/malloc.h"
 
-static t_block	*find_in_page(t_block **afblock, void *ptr)
+t_page          *find_page(t_page *head, t_block *block)
+{
+    if (!head)
+        return (NULL);
+    else {
+        if (find_in_page(&head->block, block->root))
+            return (head);
+        else
+            return (find_page(head->next, block));
+    }
+}
+
+t_block	        *find_in_page(t_block **afblock, void *ptr)
 {
 	t_block		*head;
 

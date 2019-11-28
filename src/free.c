@@ -20,14 +20,10 @@ void			free_core(void *ptr)
 	t_block		*ref;
 
 	if (g_page && ptr) {
-        if (!(ref = find_block_addr(&g_page, ptr))) {
-            ft_putendl("Trying to free a non-allocated space.");
-            pthread_mutex_unlock(&g_mutex);
+        if (!(ref = find_block_addr(&g_page, ptr)))
             return;
-        }
         if (ref->freed) {
             ft_putendl("Double free.");
-            pthread_mutex_unlock(&g_mutex);
             return;
         } else
             ref->freed = 1;

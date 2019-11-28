@@ -66,6 +66,8 @@ int main() {
                 while (i <= index)
                     free(tmp[i++]);
             }
+            if (!strcmp(cmd, "null"))
+                free(NULL);
             else if (!strcmp(cmd, "last")) {
                 if (last) {
                     free(last);
