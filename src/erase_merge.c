@@ -34,10 +34,8 @@ static void	erase_page(t_page **afpage, t_page *page)
     }
     tmp = page->size;
     ft_bzero((void *)page, tmp);
-	if (munmap((void *)page, tmp) < 0) {
-	    ft_putstr("BAD MUNMAP\n");
+	if (munmap((void *)page, tmp) < 0)
 		return ;
-	}
 }
 
 static void	what_to_em(t_page *page, t_block *spot, t_block **ablock_start, t_block *end)

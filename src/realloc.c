@@ -15,39 +15,48 @@
 
 #include "../includes/malloc.h"
 
-static void destroy_freed(t_block *previous, t_block *bfreed, size_t diff)
+static int  destroy_freed(t_block *previous, t_block *bfreed, size_t diff)
 {
     t_block *tmp;
     t_block *new;
     void    *addr;
     size_t  to_zero;
 
-    to_zero = (size_t)bfreed->root - (size_t)bfreed + bfreed->size;
+    to_zero = (size_t)bfreed->next - ((size_t)previous->root + previous->size);
     tmp = bfreed->next;
-    ft_bzero(previous->root + previous->size, to_zero);
+    new = NULL;
+    ft_bzero((void *)((size_t)previous->root + previous->size), to_zero);
     previous->size += diff;
     addr = previous->root + previous->size;
-    if (!(new = get_block(addr, to_zero - diff - BMETA_SIZE)))
-        return ;
+    to_zero = (size_t)tmp - ((size_t)previous->root + previous->size);
+    if (to_zero < BMETA_SIZE || !(new = get_block(addr, to_zero - BMETA_SIZE))) {
+        previous->next = tmp;
+        return (1);
+    }
+    new->freed = 1;
     new->next = tmp;
     previous->next = new;
+    return (1);
 }
 
-void        enlarge_block_ts(t_block *block, size_t size)
+static int  enlarge_block_ts(t_block *block, size_t size)
 {
     t_page  *page;
     size_t  diff;
 
     if (!(page = find_page(g_page, block)))
-        return ;
+        return (1);
     diff = size - block->size;
     if (!block->next && page->remain > diff)
     {
          block->size += diff;
          page->remain -= diff;
+         return (1);
     }
     else if (block->next->freed && block->next->size - BMETA_SIZE > diff)
-        destroy_freed(block, block->next, diff);
+        return (destroy_freed(block, block->next, diff));
+    else
+        return (0);
 }
 
 void		split_block_ts(t_block *block, size_t size)
@@ -57,10 +66,10 @@ void		split_block_ts(t_block *block, size_t size)
 
 	if (!block)
 		return ;
-	addr = (void *)(((uintptr_t)block->root) + size);
+	addr = (void *)(((size_t)block->root) + size);
 	ft_bzero(addr, block->size - size);
 	if (block->next) {
-		if (!(new = get_block(addr, block->size - size)))
+		if (!(new = get_block(addr, block->size - size - BMETA_SIZE)))
 			return ;
 		new->freed = 1;
 		new->next = block->next;
@@ -77,24 +86,25 @@ static void	*realloc_core(void *ptr, size_t size)
 	if (!ptr)
         return (malloc_core(size));
 	if (!(ref = find_block_addr(&g_page, ptr)))
-		return (NULL);
+        return (NULL);
 	if (is_ts(ref->size) && is_ts(ref->size) == is_ts(size)) {
-        if (ref->size > size && ref->size - size > 0)
+        if (ref->size > size && ref->size - size > BMETA_SIZE) {
             split_block_ts(ref, size);
-        else if (ref->size < size)
-            enlarge_block_ts(ref, size);
-        return (ptr);
+            return (ptr);
+        }
+        else if (ref->size < size) {
+            if (enlarge_block_ts(ref, size))
+                return (ptr);
+        }
     }
-	else {
-        if (!(new_ptr = malloc_core(size)))
-            return (NULL);
-        ft_memcpy(new_ptr, ptr, ref->size);
-        free_core(ptr);
-        return (new_ptr);
-    }
+    if (!(new_ptr = malloc_core(size)))
+        return (NULL);
+    ft_memcpy(new_ptr, ptr, (ref->size > size ? size : ref->size));
+    free_core(ptr);
+    return (new_ptr);
 }
 
-void		*realloc(void *ptr, size_t size)
+extern void		*realloc(void *ptr, size_t size)
 {
     void    *ret;
 

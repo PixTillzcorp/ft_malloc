@@ -35,16 +35,20 @@ static void put_size_clean(size_t size)
     }
 }
 
-static void get_page_type(int type, size_t page_nbr)
+static void get_page_type(t_page *page, size_t page_nbr)
 {
-    if (!type)
+    if (!page->type)
         ft_putstr("==============\033[38;5;57mLARGE\033[0m=============");
-    else if (type == TINY)
+    else if (page->type == TINY)
         ft_putstr("==============\033[38;5;45mTINY\033[0m==============");
     else
         ft_putstr("==============\033[38;5;33mSMALL\033[0m=============");
     ft_putstr(" \033[38;5;242mpage_#");
     put_size(page_nbr);
+    ft_putendl("");
+    put_hexa_addr((size_t)page, 0);
+    ft_putstr(" - ");
+    put_hexa_addr((size_t)page + page->size, 0);
     ft_putendl("\033[0m");
 }
 
@@ -179,7 +183,7 @@ static void	put_alloc_ex(t_page *page, size_t page_nbr)
 
     if (!page)
         return ;
-    get_page_type(page->type, page_nbr);
+    get_page_type(page, page_nbr);
     tmp = get_page_load(page->block, 0, page->size);
     tmp += get_page_freed(page->block, 0, page->size);
     get_page_meta(tmp, page->remain, page->size);

@@ -40,7 +40,7 @@ void		put_hexa_addr(size_t nbr, int maj)
 
 static size_t	put_alloc(t_page *page, t_block *block, size_t octet)
 {
-	if (!block || block->freed) {
+	if (!block) {
 		if (!page->next)
 			return (octet);
 		return (put_alloc(page->next, page->next->block, octet));
@@ -54,10 +54,10 @@ static size_t	put_alloc(t_page *page, t_block *block, size_t octet)
 		put_hexa_addr((size_t)(page), 1);
 		ft_putstr(" - ");
 		put_hexa_addr((size_t)(page) + page->size, 1);
-		ft_putstr(" -> remain : ");
-		put_size(page->remain);
 		ft_putchar('\n');
 	}
+    if (block->freed)
+        return (put_alloc(page, block->next, octet));
 	put_hexa_addr((size_t)(block->root), 1);
 	ft_putstr(" - ");
 	put_hexa_addr((size_t)(block->root) + block->size, 1);

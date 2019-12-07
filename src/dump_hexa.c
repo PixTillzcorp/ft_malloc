@@ -18,13 +18,16 @@
 #define NBR_COLUMN 16
 #define ADDR_LEN (11 + 5)
 
-static void put_hexa(size_t value)
+static void put_hexa(size_t value, int flip)
 {
     char		disp;
 
-    if (!value)
+    if (!value) {
+        if (flip)
+            ft_putchar('0');
         return;
-    put_hexa(value / 16);
+    }
+    put_hexa(value / 16, flip);
     if ((disp = value % 16) >= 10)
         ft_putchar((disp % 10) + 97);
     else
@@ -40,12 +43,12 @@ static void extract_hexa(void *start, size_t size, char *color)
     put_hexa_addr((size_t)start, 0);
     ft_putchar('\t');
     while (i < size) {
-        if (!(tmp = (size_t)((char *)start)[i++])) {
+        if (!(tmp = (unsigned char)((char *)start)[i++])) {
             ft_putstr(color);
             ft_putstr("00\033[0m");
         }
         else
-            put_hexa(tmp);
+            put_hexa(tmp, (tmp / 16 >= 1 ? 0 : 1));
         if (!(i % NBR_COLUMN) && i && i < size) {
             ft_putchar('\n');
             put_hexa_addr((size_t)(start + i), 0);

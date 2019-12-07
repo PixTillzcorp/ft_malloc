@@ -36,7 +36,7 @@ static t_block	*add_block(t_page *page, t_block **ablock, size_t size)
 	else {
 		while (head->next)
 			head = head->next;
-		addr = (void *)((size_t)(head->root - (void *)head) + (head->size));
+		addr = (void *)((size_t)head->root - (size_t)head + (head->size));
 		addr = (void *)((size_t)head + (size_t)addr);
 	}
 	if (!(new = get_block(addr, size)))
