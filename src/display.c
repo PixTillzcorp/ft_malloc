@@ -1,21 +1,21 @@
-/******************************************************************************/
-/*____________________________________________________________________________*/
-/*_____/\/\/\/\/\___/\/\____________/\/\/\/\/\/\_/\/\__/\/\__/\/\_____________*/
-/*____/\/\____/\/\_______/\/\__/\/\____/\/\___________/\/\__/\/\__/\/\/\/\/\__*/
-/*___/\/\/\/\/\___/\/\____/\/\/\______/\/\_____/\/\__/\/\__/\/\______/\/\_____*/
-/*__/\/\_________/\/\____/\/\/\______/\/\_____/\/\__/\/\__/\/\____/\/\________*/
-/*_/\/\_________/\/\__/\/\__/\/\____/\/\_____/\/\__/\/\__/\/\__/\/\/\/\/\_____*/
-/*____________________________________________________________________________*/
-/*                                                                            */
-/*----- Date ----------------{ 2019-10-03 12:52:08 }--------------------------*/
-/*----- Author --------------{ PixTillz }-------------------------------------*/
-/*----- Last Modified by ----{ hippolyteeinfalt }-----------------------------*/
-/*----- Last Modified time --{ 2019-10-10 15:55:16 }--------------------------*/
-/******************************************************************************/
+/*******************************************************************************
+**____________________________________________________________________________**
+**_____/\/\/\/\/\___/\/\____________/\/\/\/\/\/\_/\/\__/\/\__/\/\_____________**
+**____/\/\____/\/\_______/\/\__/\/\____/\/\___________/\/\__/\/\__/\/\/\/\/\__**
+**___/\/\/\/\/\___/\/\____/\/\/\______/\/\_____/\/\__/\/\__/\/\______/\/\_____**
+**__/\/\_________/\/\____/\/\/\______/\/\_____/\/\__/\/\__/\/\____/\/\________**
+**_/\/\_________/\/\__/\/\__/\/\____/\/\_____/\/\__/\/\__/\/\__/\/\/\/\/\_____**
+**____________________________________________________________________________**
+**                                                                            **
+**----- Date ----------------{ 2019-10-03 12:52:08 }--------------------------**
+**----- Author --------------{ PixTillz }-------------------------------------**
+**----- Last Modified by ----{ hippolyteeinfalt }-----------------------------**
+**----- Last Modified time --{ 2019-10-10 15:55:16 }--------------------------**
+*******************************************************************************/
 
 #include "../includes/malloc.h"
 
-void		put_size(size_t nbr)
+void			put_size(size_t nbr)
 {
 	if (!nbr)
 		return ;
@@ -23,11 +23,12 @@ void		put_size(size_t nbr)
 	ft_putchar((nbr % 10) + 48);
 }
 
-void		put_hexa_addr(size_t nbr, int maj)
+void			put_hexa_addr(size_t nbr, int maj)
 {
 	char		disp;
 
-	if (!nbr) {
+	if (!nbr)
+	{
 		ft_putstr("0x");
 		return ;
 	}
@@ -40,7 +41,8 @@ void		put_hexa_addr(size_t nbr, int maj)
 
 static size_t	put_alloc(t_page *page, t_block *block, size_t octet)
 {
-	if (!block) {
+	if (!block)
+	{
 		if (!page->next)
 			return (octet);
 		return (put_alloc(page->next, page->next->block, octet));
@@ -52,12 +54,10 @@ static size_t	put_alloc(t_page *page, t_block *block, size_t octet)
 		else
 			ft_putstr((page->type == TINY ? "TINY : " : "SMALL : "));
 		put_hexa_addr((size_t)(page), 1);
-		ft_putstr(" - ");
-		put_hexa_addr((size_t)(page) + page->size, 1);
 		ft_putchar('\n');
 	}
-    if (block->freed)
-        return (put_alloc(page, block->next, octet));
+	if (block->freed)
+		return (put_alloc(page, block->next, octet));
 	put_hexa_addr((size_t)(block->root), 1);
 	ft_putstr(" - ");
 	put_hexa_addr((size_t)(block->root) + block->size, 1);
@@ -67,12 +67,13 @@ static size_t	put_alloc(t_page *page, t_block *block, size_t octet)
 	return (put_alloc(page, block->next, octet + block->size));
 }
 
-static void	list_page(t_page **afpage, int flip)
+static void		list_page(t_page **afpage, int flip)
 {
-	t_page	*head;
-	size_t	count;
+	t_page		*head;
+	size_t		count;
 
-	if (!afpage || !(head = *afpage)) {
+	if (!afpage || !(head = *afpage))
+	{
 		ft_putchar('0');
 		ft_putchar('\n');
 		return ;
@@ -90,11 +91,11 @@ static void	list_page(t_page **afpage, int flip)
 	ft_putchar('\n');
 }
 
-void		show_alloc_mem()
+void			show_alloc_mem(void)
 {
-	size_t	total;
+	size_t		total;
 
-    pthread_mutex_lock(&g_mutex);
+	pthread_mutex_lock(&g_mutex);
 	if (g_page)
 		total = put_alloc(g_page, g_page->block, 0);
 	else
@@ -105,9 +106,7 @@ void		show_alloc_mem()
 	else
 		ft_putchar('0');
 	ft_putchar('\n');
-	//----------------------------
 	ft_putstr("Pages : ");
 	list_page(&g_page, 1);
-	//----------------------------
-    pthread_mutex_unlock(&g_mutex);
+	pthread_mutex_unlock(&g_mutex);
 }

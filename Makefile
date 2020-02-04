@@ -34,7 +34,7 @@ OBJDIR = objfiles
 CC = gcc
 
 SRCC =	free.c malloc.c realloc.c display.c	alloc.c find.c get.c erase_merge.c\
-		display_ex.c calloc.c dump_hexa.c
+		display_ex.c calloc.c dump_hexa.c display_ex_tools.c
 
 # SRCC =	free.c malloc.c realloc.c split_block.c cat_block.c display.c		\
 # 		get_functions.c page.c
