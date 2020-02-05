@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   malloc.h                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: heinfalt <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/02/05 10:25:39 by heinfalt          #+#    #+#             */
+/*   Updated: 2020/02/05 10:25:43 by heinfalt         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef MALLOC_H
 # define MALLOC_H
 
@@ -6,17 +18,17 @@
 # define LARGE 0
 # define PREGEN 100
 # define DISPLAY 64
-# define SIZE_TINY getpagesize() / 32
-# define SIZE_SMALL getpagesize() / 2
-# define BMETA_SIZE (sizeof(t_block) + ALIGNEMENT)
-# define PMETA_SIZE sizeof(t_page)
+# define SIZE_TINY 128
+# define SIZE_SMALL 2048
+# define BMETA_SIZE 47
+# define PMETA_SIZE 48
 # define ALIGNEMENT 15
 
-#include "../libft/includes/libft.h"
-#include <sys/resource.h>
-#include <pthread.h>
-#include <stdio.h>
-#include <sys/mman.h>
+# include "../libft/includes/libft.h"
+# include <sys/resource.h>
+# include <pthread.h>
+# include <stdio.h>
+# include <sys/mman.h>
 
 typedef struct			s_block
 {
@@ -62,9 +74,12 @@ void					show_alloc_mem_ex(void);
 */
 
 void					get_page_type(t_page *page, size_t page_nbr);
-size_t					get_page_load(t_block *head, size_t octet, size_t page_size);
-size_t					get_page_freed(t_block *head, size_t octet, size_t page_size);
-void					get_page_meta(size_t data_stored, size_t remain, size_t page_size);
+size_t					get_page_load(t_block *head, size_t octet,
+						size_t page_size);
+size_t					get_page_freed(t_block *head, size_t octet,
+						size_t page_size);
+void					get_page_meta(size_t data_stored, size_t remain,
+						size_t page_size);
 void					get_page_frag_lvl(t_block *head, size_t lvl, int flip);
 
 /*

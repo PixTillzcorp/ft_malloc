@@ -6,17 +6,36 @@ endif
 
 .SUFFIXES:
 
+# ********************************* DISPLAY ********************************** #
+
+SRC_NBR = $(words $(SRCO))
+
+PRCENT = $(shell echo \($(DONE) \* 100\) \/ $(SRC_NBR) | bc)
+
+REST = $(shell echo \($(DONE) \* 100\) \% $(SRC_NBR) | bc)
+
+PRGRSS = $(shell echo \($(PRCENT) \/ 2\) + 1 | bc)
+
+DONE = 0
+
+BAR = $(shell echo "\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#" | cut -c 1-$(PRGRSS))
+
+EMPTY = $(shell echo "                                                  " | cut -c $(PRGRSS)-50)
+
+# **************************************************************************** #
+
 #~~~~~~~~~~~~~~~~COLORS~~~~~~~~~~~~~~
 
-FONT_NOIR = \033[40m
-BLACK = \033[30m
-RED = \033[31m
-GREEN = \033[32m
-YELLOW = \033[33m
-BLUE = \033[34m
-PINK = \033[35m
-CYAN = \033[36m
-GREY = \033[37m
+BLACK = \033[38;5;0m
+RED = \033[38;5;196m
+GREEN = \033[38;5;46m
+YELLOW = \033[38;5;226m
+ORANGE = \033[38;5;202m
+BLUE = \033[38;5;18m
+PINK = \033[38;5;207m
+PURPLE = \033[38;5;57m
+CYAN = \033[38;5;45m
+GREY = \033[38;5;242m
 NORMAL = \033[0m
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -50,16 +69,16 @@ all: lib $(NAME)
 #Display rules~~~~~~~~~~~~
 
 cleared:
-	@ echo "$(YELLOW)$(FONT_NOIR)$(NAME) : $(RED).o files destruction\t\t[$(GREEN)\xe2\x9c\x94$(RED)]$(NORMAL)"
+	@ echo "$(RED)~ Clean $(NAME) ~$(NORMAL)"
 
 full_clear:
-	@ echo "$(YELLOW)$(FONT_NOIR)$(NAME) : $(RED)executable file destruction\t[$(GREEN)\xe2\x9c\x94$(RED)]$(NORMAL)"
+	@ echo "$(RED)~ Full Clean $(NAME) ~$(NORMAL)"
 
 re_init:
-	@ echo "$(BLUE)$(FONT_NOIR)Reseting $(NAME) }~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~$(NORMAL)"
+	@ echo "$(YELLOW)~ Reset $(NAME) ~$(NORMAL)"
 
 re_done:
-	@ echo "$(BLUE)$(FONT_NOIR)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{ Reset Complete\t[$(GREEN)\xe2\x9c\x94$(BLUE)]$(NORMAL)"
+	@ echo "$(GREEN)~ Reset Complete $(NAME) ~$(NORMAL)"
 
 #Lib rules~~~~~~~~~~~~~~~~
 
@@ -70,24 +89,27 @@ lib_re:
 	@ make -C $(LIB_PATH) re
 
 $(OBJDIR)/%.o: %.c
+	@ $(eval DONE = $(shell echo $(DONE) + 1 | bc ))
+	@ echo "\r \b$(PURPLE)[$(NORMAL)$(BAR)$(EMPTY)$(PURPLE)] {$(NORMAL)$(PRCENT).$(REST)$(PURPLE)} $(NORMAL)\t\c"
 	@ mkdir -p $(OBJDIR)
 	@ $(CC) $(CFLAGS) -c $<
 	@ mv ./$(notdir $@) ./$(OBJDIR)/
 
 $(NAME): $(LIB_PATH)/$(LIB) $(SRCO)
-	@ echo "$(PINK)$(FONT_NOIR).o successfully created\t\t\t\t\t\t[$(GREEN)\xe2\x9c\x94$(PINK)]$(NORMAL)"
+	@ echo "$(PURPLE)[$(GREEN)\xe2\x9c\x94$(PURPLE)] $(NAME)$(NORMAL)"
 	@ $(CC) $(CFLAGS) -shared -o $(NAME) $^
 	@ rm -f libft_malloc.so
 	@ ln -s $(NAME) libft_malloc.so
-	@ echo "$(PINK)$(FONT_NOIR)Compilation of $(NAME)\t\t\t[$(GREEN)\xe2\x9c\x94$(PINK)]$(NORMAL)"
 
 clean: cleared
 	@ make -C $(LIB_PATH) clean
 	@ @ rm -f libft_malloc.so
 	@ rm -f $(SRCO)
 
-fclean: full_clear clean
+fclean: full_clear
 	@ make -C $(LIB_PATH) fclean
+	@ @ rm -f libft_malloc.so
+	@ rm -f $(SRCO)
 	@ rm -f $(NAME)
 
-re: re_init fclean lib_re $(NAME) re_done
+re: re_init fclean lib $(NAME) re_done
